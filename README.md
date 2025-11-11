@@ -30,9 +30,10 @@ Buyer → Controller → Order Service → Payment Proxy → External Gateway �
 ### 1.2 Architecture Diagrams
 
 **Deployment Diagram:**
+![](monolith_deployment.png)
 
 **Component Diagram:**
-
+![](monolith_components.png)
 
 ### 1.3 Pros and Cons
 
@@ -82,9 +83,10 @@ Microservices decompose SkillSphere into independent services, each responsible 
 ### 2.2 Architecture Diagrams
 
 **Deployment Diagram:**
+![](microservices_deployment.png)
 
 **Component Diagram:**
-
+![](microservices_components.png)
 
 ### 2.3 Pros and Cons
 
@@ -144,9 +146,10 @@ Event-Driven Architecture centers around events (facts about what happened). Ser
 ### 3.2 Architecture Diagrams
 
 **Deployment Diagram:**
+![](event-driven_deployment.png)
 
 **Component Diagram with Event Flow:**
-
+![](event-driven_deployment.png)
 
 ### 3.3 Pros and Cons
 
