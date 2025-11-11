@@ -149,7 +149,7 @@ Event-Driven Architecture centers around events (facts about what happened). Ser
 ![](event-driven_deployment.png)
 
 **Component Diagram with Event Flow:**
-![](event-driven_deployment.png)
+![](event-driven_components.png)
 
 ### 3.3 Pros and Cons
 
