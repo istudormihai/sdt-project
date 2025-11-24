@@ -8,12 +8,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="user-service" />
         <module name="catalog-service" />
+        <module name="payment-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="catalog-service" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>
