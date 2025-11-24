@@ -1,0 +1,90 @@
+version: "3.9"
+services:
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/userdb
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      - user-db
+
+  catalog-service:
+    build: ./catalog-service
+    container_name: catalog-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://catalog-db:5432/catalogdb
+      - SPRING_DATASOURCE_USERNAME=catalog
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      - catalog-db
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://order-db:5432/orderdb
+      - SPRING_DATASOURCE_USERNAME=orders
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SERVICES_CATALOG_URL=http://catalog-service:8082
+      - SERVICES_PAYMENT_URL=http://payment-service:8084
+    depends_on:
+      - order-db
+      - catalog-service
+      - payment-service
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://payment-db:5432/paymentdb
+      - SPRING_DATASOURCE_USERNAME=payment
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      - payment-db
+
+  # Postgres instances
+  user-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: userdb
+    ports:
+      - "5433:5432"
+
+  catalog-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: catalog
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: catalogdb
+    ports:
+      - "5434:5432"
+
+  order-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: orders
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: orderdb
+    ports:
+      - "5435:5432"
+
+  payment-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: payment
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: paymentdb
+    ports:
+      - "5436:5432"
