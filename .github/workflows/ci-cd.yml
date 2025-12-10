@@ -7,7 +7,6 @@ on:
     branches: [ "5-message-queue-integration" ]
 
 jobs:
-
   build-and-test:
     runs-on: ubuntu-latest
 
@@ -22,24 +21,21 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Build full project (skip tests)
-        run: mvn -B clean package -DskipTests
 
       - name: Build user-service
-        run: mvn -f user-service/pom.xml clean verify -DskipTests
+        run: mvn -f user-service/pom.xml clean verify -DskipTests=true
 
       - name: Build catalog-service
-        run: mvn -f catalog-service/pom.xml clean verify -DskipTests
+        run: mvn -f catalog-service/pom.xml clean verify -DskipTests=true
 
       - name: Build order-service
-        run: mvn -f order-service/pom.xml clean verify -DskipTests
+        run: mvn -f order-service/pom.xml clean verify -DskipTests=true
 
       - name: Build payment-service
-        run: mvn -f payment-service/pom.xml clean verify -DskipTests
+        run: mvn -f payment-service/pom.xml clean verify -DskipTests=true
 
       - name: Build notification-service
-        run: mvn -f notification-service/pom.xml clean verify -DskipTests
-
+        run: mvn -f notification-service/pom.xml clean verify -DskipTests=true
 
   docker-deploy:
     needs: build-and-test
@@ -55,6 +51,5 @@ jobs:
       - name: Build and start stack with Docker Compose
         run: |
           docker compose -f docker-compose.yml up -d --build
-
       - name: Show running containers
         run: docker ps
