@@ -3,6 +3,7 @@ package com.skillsphere.orderservice.service;
 import com.skillsphere.orderservice.dto.*;
 import com.skillsphere.orderservice.entity.Order;
 import com.skillsphere.orderservice.entity.OrderStatus;
+import com.skillsphere.orderservice.messaging.OrderEventPublisher;
 import com.skillsphere.orderservice.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ public class OrderService {
 
     private final OrderRepository repo;
     private final RestTemplate restTemplate;
+    private final OrderEventPublisher eventPublisher;
+
 
     @Value("${services.catalog.url}")
     private String catalogBaseUrl;
@@ -45,6 +48,7 @@ public class OrderService {
                 .status(OrderStatus.PENDING)
                 .build();
         Order saved = repo.save(order);
+        eventPublisher.publishOrderEvent(saved);
         return toResponse(saved);
     }
 
@@ -62,6 +66,7 @@ public class OrderService {
             order.setPaymentTransactionId(resp.transactionId());
             repo.save(order);
         }
+        eventPublisher.publishOrderEvent(order);
         return toResponse(order);
     }
 

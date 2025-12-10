@@ -35,10 +35,13 @@ services:
       - SPRING_DATASOURCE_PASSWORD=password
       - SERVICES_CATALOG_URL=http://catalog-service:8082
       - SERVICES_PAYMENT_URL=http://payment-service:8084
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
     depends_on:
       - order-db
       - catalog-service
       - payment-service
+      - rabbitmq
 
   payment-service:
     build: ./payment-service
@@ -51,6 +54,26 @@ services:
       - SPRING_DATASOURCE_PASSWORD=password
     depends_on:
       - payment-db
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+
 
   # Postgres instances
   user-db:
