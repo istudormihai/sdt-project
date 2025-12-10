@@ -1,0 +1,55 @@
+name: CI-CD
+
+on:
+  push:
+    branches: [ "5-message-queue-integration" ]
+  pull_request:
+    branches: [ "5-message-queue-integration" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      # Build each microservice
+      - name: Build user-service
+        run: mvn -f user-service/pom.xml clean verify -DskipTests=false
+
+      - name: Build catalog-service
+        run: mvn -f catalog-service/pom.xml clean verify -DskipTests=false
+
+      - name: Build order-service
+        run: mvn -f order-service/pom.xml clean verify -DskipTests=false
+
+      - name: Build payment-service
+        run: mvn -f payment-service/pom.xml clean verify -DskipTests=false
+
+      - name: Build notification-service
+        run: mvn -f notification-service/pom.xml clean verify -DskipTests=false
+
+  docker-deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and start stack with Docker Compose
+        run: |
+          docker compose -f docker-compose.yml up -d --build
+      - name: Show running containers
+        run: docker ps
