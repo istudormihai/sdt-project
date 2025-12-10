@@ -23,19 +23,19 @@ jobs:
 
 
       - name: Build user-service
-        run: mvn -f user-service/pom.xml clean package -DskipTests=true
+        run: mvn -f user-service clean package -DskipTests
 
       - name: Build catalog-service
-        run: mvn -f catalog-service/pom.xml clean package -DskipTests=true
+        run: mvn -f catalog-service clean package -DskipTests
 
       - name: Build order-service
-        run: mvn -f order-service/pom.xml clean package -DskipTests=true
+        run: mvn -f order-service clean package -DskipTests
 
       - name: Build payment-service
-        run: mvn -f payment-service/pom.xml clean package -DskipTests=true
+        run: mvn -f payment-service clean package -DskipTests
 
       - name: Build notification-service
-        run: mvn -f notification-service/pom.xml clean package -DskipTests=true
+        run: mvn -f notification-service clean package -DskipTests
 
   docker-deploy:
     needs: build-and-test
