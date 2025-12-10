@@ -42,3 +42,36 @@
     2.  **Logging:** Securely log all payment attempts for auditing.
     3.  **Caching:** Prevent accidental duplicate payment submissions by caching recent transaction requests.
 * **Advantage Over Simpler Alternatives:** Placing validation and logging logic directly in the client code that initiates a payment leads to code duplication and mixes business logic with security concerns. The Proxy pattern provides a clean separation of concerns, centralizing all the pre-processing and security checks in one place, which makes the payment process more robust and easier to maintain.
+
+## Message Queue & CI/CD
+
+### 1. Message Queue Integration (RabbitMQ)
+
+We introduced an asynchronous communication channel using RabbitMQ between:
+
+- `order-service` (producer)
+- `notification-service` (consumer)
+
+Whenever an order is **created** or **paid**, the `order-service` publishes an `OrderEvent`
+message to a RabbitMQ **topic exchange**:
+
+- Exchange: `order.events.exchange`
+- Routing key: `order.events.key`
+- Queue: `order.events.queue`
+
+The `notification-service` listens on `order.events.queue` using `@RabbitListener` and
+logs the events. In a real system this service could send e-mails, SMS or push notifications.
+
+**Benefits:**
+
+- `order-service` is **decoupled** from notification logic (no direct HTTP call).
+- We can add more consumers (analytics, billing, etc.) without changing `order-service`.
+- If `notification-service` is temporarily down, messages are buffered in the queue and
+  processed later, improving **fault tolerance**.
+- This pattern increases **scalability**, because producers do not wait for consumers.
+
+To run RabbitMQ locally as part of the stack:
+
+```bash
+mvn clean package -DskipTests
+docker compose up --build
