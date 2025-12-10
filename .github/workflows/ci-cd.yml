@@ -1,55 +1,72 @@
-name: CI-CD
+  name: CI-CD
 
-on:
-  push:
-    branches: [ "5-message-queue-integration" ]
-  pull_request:
-    branches: [ "5-message-queue-integration" ]
+  on:
+    push:
+      branches: [ "5-message-queue-integration" ]
+    pull_request:
+      branches: [ "5-message-queue-integration" ]
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  jobs:
+    build-and-test:
+      runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: maven
+        - name: Set up JDK 21
+          uses: actions/setup-java@v4
+          with:
+            distribution: temurin
+            java-version: '21'
+            cache: maven
 
+        - name: Build user-service
+          run: mvn -f user-service clean package -DskipTests
 
-      - name: Build user-service
-        run: mvn -f user-service clean package -DskipTests
+        - name: Build catalog-service
+          run: mvn -f catalog-service clean package -DskipTests
 
-      - name: Build catalog-service
-        run: mvn -f catalog-service clean package -DskipTests
+        - name: Build order-service
+          run: mvn -f order-service clean package -DskipTests
 
-      - name: Build order-service
-        run: mvn -f order-service clean package -DskipTests
+        - name: Build payment-service
+          run: mvn -f payment-service clean package -DskipTests
 
-      - name: Build payment-service
-        run: mvn -f payment-service clean package -DskipTests
+        - name: Build notification-service
+          run: mvn -f notification-service clean package -DskipTests
 
-      - name: Build notification-service
-        run: mvn -f notification-service clean package -DskipTests
+        - name: Upload built jars
+          uses: actions/upload-artifact@v4
+          with:
+            name: service-jars
+            path: |
+              user-service/target
+              catalog-service/target
+              order-service/target
+              payment-service/target
+              notification-service/target
 
-  docker-deploy:
-    needs: build-and-test
-    runs-on: ubuntu-latest
+    docker-deploy:
+      needs: build-and-test
+      runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
-      - name: Set up Docker Build
-        uses: docker/setup-buildx-action@v3
+        - name: Download built jars
+          uses: actions/download-artifact@v4
+          with:
+            name: service-jars
+            path: .
 
-      - name: Build and start stack with Docker Compose
-        run: |
-          docker compose -f docker-compose.yml up -d --build
-      - name: Show running containers
-        run: docker ps
+        - name: Set up Docker Build
+          uses: docker/setup-buildx-action@v3
+
+        - name: Build and start stack with Docker Compose
+          run: |
+            docker compose -f docker-compose.yml up -d --build
+
+        - name: Show running containers
+          run: docker ps
